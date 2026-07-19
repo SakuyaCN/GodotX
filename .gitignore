@@ -1,0 +1,12 @@
+node_modules/
+runtime/dist/
+addons/godetx/bin/
+addons/godetx/runtime/
+.godot/
+.godetx/*
+!.godetx/skills/
+!.godetx/skills/**
+.tmp/
+logs/*.log
+*.tmp
+*.bak

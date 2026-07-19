@@ -1,0 +1,60 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://b820absoupe5e"]
+
+[ext_resource type="Texture2D" uid="uid://clfvh0tkpxrgt" path="res://demo/Demon_A_Attack01.png" id="1_texture"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0"]
+atlas = ExtResource("1_texture")
+region = Rect2(0, 0, 100, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1"]
+atlas = ExtResource("1_texture")
+region = Rect2(100, 0, 100, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2"]
+atlas = ExtResource("1_texture")
+region = Rect2(200, 0, 100, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("1_texture")
+region = Rect2(300, 0, 100, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4"]
+atlas = ExtResource("1_texture")
+region = Rect2(400, 0, 100, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5"]
+atlas = ExtResource("1_texture")
+region = Rect2(500, 0, 100, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6"]
+atlas = ExtResource("1_texture")
+region = Rect2(600, 0, 100, 120)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 10.0
+}]

@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://ugrlyncg5m28"]
+
+[ext_resource type="Texture2D" uid="uid://dgjuc5i1078u6" path="res://addons/godetx/icons/godotx-mark.png" id="1_icon"]
+
+[node name="Icon" type="TextureRect" unique_id=538907396]
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture = ExtResource("1_icon")
+expand_mode = 1
+stretch_mode = 5

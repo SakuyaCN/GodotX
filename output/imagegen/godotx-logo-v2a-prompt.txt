@@ -1,0 +1,11 @@
+Use case: logo-brand
+Asset type: horizontal brand lockup for a Godot editor AI coding assistant
+Primary request: Design a refined, original logo for "GodotX". It must feel like a serious modern developer tool, not a generic AI startup.
+Subject: A compact monogram on the left made from two precise code-bracket forms whose negative space subtly creates an X, paired with a restrained custom wordmark on the right. The symbol may include one small inspector-dot detail, but no network diagram.
+Style/medium: minimal flat vector-style identity, Swiss-inspired spacing, geometric sans-serif wordmark, crisp optical balance, strong silhouette.
+Composition/framing: centered horizontal lockup inside a square canvas with generous outer padding; symbol about one third of the lockup width; wordmark readable but not oversized.
+Color palette: near-black graphite and cool cyan with a small restrained blue accent. No magenta in the logo.
+Text (verbatim): "GodotX"
+Scene/backdrop: perfectly flat uniform #ff00ff chroma-key background for removal; no texture, gradient, shadow, reflection, glow, floor, or lighting variation.
+Constraints: render "GodotX" exactly once with correct spelling and capitalization; flat shapes only; original design; professional IDE/plugin character; clean at small sizes; no watermark; no extra text; no official Godot mascot or copied logo.
+Avoid: giant standalone X, AI sparkles, stars, neural-network nodes, connected circles, chatbot bubbles, robots, mascots, 3D, glossy effects, gradients, gaming-esports styling, excessive cyan.

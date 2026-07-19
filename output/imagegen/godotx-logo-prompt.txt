@@ -1,0 +1,11 @@
+Use case: logo-brand
+Asset type: Godot editor plugin logo and wordmark
+Primary request: Create an original logo for "GodotX", a Godot-focused AI coding assistant that can understand projects, edit scripts, and modify scenes.
+Subject: A compact emblem combining an abstract game-editor node graph, a precise AI sparkle, and a strong integrated X shape. The symbol should communicate Godot project tooling plus intelligent assistance without copying the official Godot mascot or logo.
+Style/medium: polished flat vector-style brand mark, minimal geometric construction, strong silhouette, professional developer-tool identity.
+Composition/framing: centered square composition with the emblem above and the exact wordmark below; generous padding; readable at 32px and 128px.
+Color palette: crisp white, cool cyan, restrained electric blue, and dark charcoal accents. Do not use magenta in the logo itself.
+Text (verbatim): "GodotX"
+Scene/backdrop: perfectly flat solid #ff00ff chroma-key background for background removal. One uniform color only, with no shadow, gradient, texture, floor, reflection, glow, or lighting variation in the background.
+Constraints: render "GodotX" exactly once with correct capitalization and spelling; original design; simple scalable forms; crisp separated edges; no cast shadow; no contact shadow; no watermark; no extra text; no official Godot mascot; no copied trademarks.
+Avoid: generic chatbot speech bubbles, humanoid robots, detailed illustrations, 3D mockups, glossy effects, tiny decorative details, purple or magenta elements in the mark.

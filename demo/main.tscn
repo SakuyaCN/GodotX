@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://c0t150ke3a1qn"]
+
+[ext_resource type="Script" uid="uid://v8rlr68cltb" path="res://demo/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://ugrlyncg5m28" path="res://demo/icon.tscn" id="2_ru5rj"]
+[ext_resource type="SpriteFrames" uid="uid://b820absoupe5e" path="res://demo/demon_attack_frames.tres" id="3_cvse4"]
+
+[node name="Main" type="Node2D" unique_id=1591326592]
+script = ExtResource("1_main")
+
+[node name="BG" type="ColorRect" parent="." unique_id=370707809]
+offset_right = 900.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.055, 0.071, 0.125, 1)
+
+[node name="Icon" parent="BG" unique_id=538907396 instance=ExtResource("2_ru5rj")]
+layout_mode = 0
+
+[node name="AnimSprite" type="AnimatedSprite2D" parent="BG" unique_id=287965075]
+texture_filter = 1
+position = Vector2(350, 60)
+sprite_frames = ExtResource("3_cvse4")
+animation = &"attack"
+autoplay = "attack"
+
+[node name="Node2D" type="Node2D" parent="." unique_id=1599016623]
+
+[node name="ExitButton" type="Button" parent="Node2D" unique_id=778249442]
+offset_left = 300.0
+offset_top = 300.0
+offset_right = 420.0
+offset_bottom = 340.0
+theme_override_font_sizes/font_size = 20
+text = "退出"

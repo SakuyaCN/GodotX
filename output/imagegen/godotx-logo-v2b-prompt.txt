@@ -1,0 +1,11 @@
+Use case: logo-brand
+Asset type: compact plugin icon plus understated wordmark for a Godot editor AI assistant
+Primary request: Design an elegant, original logo for "GodotX" with a memorable icon-first identity.
+Subject: One compact geometric emblem where an abstract lowercase g or editor viewport frame uses negative space to reveal a subtle X. The result should read as one coherent symbol, not several separate icons. Pair it with a small understated "GodotX" wordmark below or beside it.
+Style/medium: minimal flat vector-style mark, carefully rounded geometry, contemporary open-source developer-tool aesthetic, quiet and confident.
+Composition/framing: centered compact lockup with generous padding; emblem dominant but not huge; balanced wordmark; designed to crop cleanly into a square plugin icon.
+Color palette: deep charcoal, off-white, and one cyan-blue accent. No magenta in the logo.
+Text (verbatim): "GodotX"
+Scene/backdrop: perfectly flat uniform #ff00ff chroma-key background for removal; no texture, gradient, shadow, reflection, glow, floor, or lighting variation.
+Constraints: render "GodotX" exactly once with correct spelling and capitalization; one unified emblem; simple scalable geometry; strong negative space; original design; no watermark; no extra text; no official Godot mascot or copied logo.
+Avoid: giant X, stars, sparkles, network graphs, node-and-line diagrams, chatbot bubbles, robots, mascots, circuit-board patterns, 3D rendering, glossy effects, esports logos, decorative clutter.
