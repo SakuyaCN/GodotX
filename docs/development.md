@@ -1,5 +1,7 @@
 # 开发指南
 
+**中文** | [English](en/development.md)
+
 本指南适用于构建 Runtime、修改 Godot 插件、运行测试和制作发布包。
 
 ## 仓库结构

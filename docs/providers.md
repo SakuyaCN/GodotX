@@ -1,5 +1,7 @@
 # Provider 指南
 
+**中文** | [English](en/providers.md)
+
 GodotX 的 Agent、工具和编辑器 UI 不依赖具体模型厂商。Provider 只负责模型发现、能力声明、请求转换和流式响应解析。
 
 ## 内置 Provider

@@ -1,6 +1,8 @@
 # GodotX architecture
 
-This document is the implementation-level architecture reference for contributors. For installation and user workflows, start with the [documentation index](README.md).
+**English** | [中文文档索引](README.md)
+
+This document is the implementation-level architecture reference for contributors. For installation and user workflows, start with the [English documentation index](en/README.md).
 
 ## Runtime ownership
 

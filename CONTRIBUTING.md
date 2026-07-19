@@ -1,5 +1,7 @@
 # 贡献指南
 
+**中文** | [English](CONTRIBUTING_EN.md)
+
 感谢你改进 GodotX。项目同时包含 Godot 编辑器代码和 Node.js Agent Runtime，修改时需要保持两侧协议与安全边界一致。
 
 ## 提交 Issue

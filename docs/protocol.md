@@ -1,5 +1,7 @@
 # Runtime 协议
 
+**中文** | [English](en/protocol.md)
+
 Godot 编辑器插件与 Node.js Runtime 通过版本化 WebSocket 协议通信。Godot 不解析任何 Provider 原生 SSE；Provider 事件必须先在 Runtime 中归一化。
 
 ## 传输

@@ -1,5 +1,7 @@
 # 功能指南
 
+**中文** | [English](en/features.md)
+
 GodotX 将对话 Agent、视觉生成和可复用技能拆分为三个独立工作区。它们共享 Provider 配置和项目边界，但承担不同职责。
 
 ## GodotX 工作区

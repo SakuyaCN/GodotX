@@ -9,6 +9,10 @@
 <h1 align="center">GodotX</h1>
 
 <p align="center">
+  <strong>中文</strong> · <a href="README_EN.md">English</a>
+</p>
+
+<p align="center">
   面向 Godot 4 的编辑器内 AI 开发 Agent。
   在同一个工作流中理解项目、修改脚本与场景、运行游戏测试，并生成视觉素材。
 </p>
