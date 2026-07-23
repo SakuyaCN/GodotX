@@ -89,6 +89,12 @@ Remote Base URLs must use HTTPS. HTTP is allowed only for an exact local loopbac
 
 Only an API key is required. The adapter fixes the endpoint and Chat Completions transport. Its built-in model capabilities currently do not support image input or ImageX.
 
+### Anthropic
+
+Enter a Base URL and API key. A bare host automatically gains `/v1`. This Provider uses native Messages streaming with Thinking, tool calls, and chat image input, but it does not support ImageX.
+
+Remote addresses require HTTPS by default. Enable **Allow insecure HTTP** only on a trusted test network; doing so sends the API key over an unencrypted connection.
+
 ### OpenCode Zen
 
 Only a Zen API key is required. GodotX intersects Zen's live model list with protocol metadata and shows only models whose tool-calling transports are fully supported by the Runtime.
@@ -184,6 +190,6 @@ This is intentional. GodotX game debugging and simulation automation run only th
 
 ### ImageX Is Available but Image Editing Is Not
 
-Image generation, image input, and image editing are independent capabilities. ImageX disables related tasks when the Provider or model does not declare the needed capability. DeepSeek and OpenCode Zen currently do not expose ImageX.
+Image generation, image input, and image editing are independent capabilities. ImageX disables related tasks when the Provider or model does not declare the needed capability. Anthropic, DeepSeek, and OpenCode Zen currently do not expose ImageX.
 
 [Back to the documentation index](README.md)

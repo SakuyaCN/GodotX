@@ -1774,7 +1774,7 @@ const godotApiQuerySchema: ToolSchema = {
 const sceneApplyOperationsSchema: ToolSchema = {
   name: "scene_apply_operations",
   description:
-    "Apply structured changes to one scene leased when this turn started. Pass that target's scene_id; the Runtime securely binds its exact turn-local revision, so the model must not copy or invent the opaque token. Supports node creation, property/resource changes, duplication, reparenting, packed-scene instantiation, renaming, and removal. Each call requires approval, creates one Godot undo action in the target scene history, and leaves the scene unsaved for review. Re-read the same scene_id after applying.",
+    "Apply structured changes to one scene leased when this turn started. Pass that target's scene_id; the Runtime securely binds its exact turn-local revision, so the model must not copy or invent the opaque token. Supports node creation, property/resource changes, script attachment, duplication, reparenting, packed-scene instantiation, renaming, and removal. Each call requires approval, creates one Godot undo action in the target scene history, and leaves the scene unsaved for review. Re-read the same scene_id after applying.",
   parameters: {
     type: "object",
     properties: {
@@ -1822,6 +1822,27 @@ const sceneApplyOperationsSchema: ToolSchema = {
                 value: liveEditorSceneValueSchema,
               },
               required: ["action", "node_path", "property", "value"],
+              additionalProperties: false,
+            },
+            {
+              type: "object",
+              properties: {
+                action: { const: "set_script" },
+                node_path: { type: "string", minLength: 1, maxLength: 512, pattern: LIVE_NODE_PATH_PATTERN },
+                script_path: {
+                  oneOf: [
+                    {
+                      type: "string",
+                      minLength: 10,
+                      maxLength: 1024,
+                      pattern: "^res://.*\\.gd$",
+                      description: "Canonical res:// path to a GDScript file to attach",
+                    },
+                    { type: "null", description: "Detach the current script" },
+                  ],
+                },
+              },
+              required: ["action", "node_path", "script_path"],
               additionalProperties: false,
             },
             {
@@ -2269,6 +2290,7 @@ export type EditorSceneOperation =
       properties?: Record<string, unknown>;
     }
   | { action: "set_property"; node_path: string; property: string; value: unknown }
+  | { action: "set_script"; node_path: string; script_path: string | null }
   | { action: "rename_node"; node_path: string; new_name: string }
   | { action: "remove_node"; node_path: string }
   | { action: "duplicate_node"; node_path: string; parent_path?: string; name?: string }
@@ -2347,6 +2369,14 @@ function readEditorSceneOperation(value: unknown, index: number): EditorSceneOpe
         property: readEditorProperty(value.property, field("property")),
         value: readEditorSceneValue(value.value, field("value")),
       };
+    case "set_script":
+      rejectUnknownKeys(value, ["action", "node_path", "script_path"], index);
+      if (!Object.hasOwn(value, "script_path")) throw new Error(`${field("script_path")} is required`);
+      return {
+        action: "set_script",
+        node_path: readLiveNodePath(value.node_path, field("node_path")),
+        script_path: readLiveScriptPath(value.script_path, field("script_path")),
+      };
     case "rename_node":
       rejectUnknownKeys(value, ["action", "node_path", "new_name"], index);
       return {
@@ -2411,7 +2441,7 @@ function readEditorSceneOperation(value: unknown, index: number): EditorSceneOpe
     }
     default:
       throw new Error(
-        `operations[${index}].action must be add_node, set_property, rename_node, remove_node, duplicate_node, reparent_node, or instantiate_scene`,
+        `operations[${index}].action must be add_node, set_property, set_script, rename_node, remove_node, duplicate_node, reparent_node, or instantiate_scene`,
       );
   }
 }
@@ -2594,6 +2624,15 @@ function readLiveResourcePath(value: unknown, field: string): string {
   return value;
 }
 
+function readLiveScriptPath(value: unknown, field: string): string | null {
+  if (value === null) return null;
+  const path = readLiveResourcePath(value, field);
+  if (!path.toLowerCase().endsWith(".gd")) {
+    throw new Error(`${field} must be a res:// GDScript path ending in .gd, or null to detach`);
+  }
+  return path;
+}
+
 function readResourceUid(value: unknown, field: string): string {
   if (
     typeof value !== "string" ||
@@ -2659,6 +2698,9 @@ function readEditorProperty(value: unknown, field: string): string {
   }
   const propertyRoot = value.split("/", 1)[0]!;
   if (BLOCKED_LIVE_SCENE_PROPERTY_ROOTS.has(propertyRoot)) {
+    if (propertyRoot === "script") {
+      throw new Error(`${field} cannot modify script; use action set_script with script_path`);
+    }
     throw new Error(
       `${field} cannot modify protected structural or script property ${propertyRoot}; use a dedicated scene operation`,
     );

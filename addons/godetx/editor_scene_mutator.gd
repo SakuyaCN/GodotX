@@ -221,6 +221,8 @@ func _validate_operation(operation: Dictionary, index: int, context: Dictionary)
 			return _validate_add_node(operation, index, context)
 		"set_property":
 			return _validate_set_property(operation, index, context)
+		"set_script":
+			return _validate_set_script(operation, index, context)
 		"rename_node":
 			return _validate_rename_node(operation, index, context)
 		"remove_node":
@@ -378,6 +380,69 @@ func _validate_set_property(operation: Dictionary, index: int, context: Dictiona
 		"_node": node,
 		"_property": property_value,
 		"_before": old_value,
+	})
+	return {"ok": true}
+
+
+func _validate_set_script(operation: Dictionary, index: int, context: Dictionary) -> Dictionary:
+	var unknown := _first_unknown_key(operation, ["action", "node_path", "script_path"])
+	if not unknown.is_empty():
+		return _operation_error(index, "unsupported field: %s" % unknown)
+	var node_path_value = operation.get("node_path")
+	if not node_path_value is String:
+		return _operation_error(index, "node_path must be a string")
+	if not operation.has("script_path"):
+		return _operation_error(index, "script_path is required")
+	var node_result := _resolve_virtual_node(node_path_value, "node_path", context)
+	if not bool(node_result.get("ok", false)):
+		return _operation_error(index, str(node_result.error))
+	var node := node_result.node as Node
+	if not _is_directly_editable_node(node, context):
+		return _operation_error(index, "node_path is inside a non-editable instanced subscene")
+	var script_path = operation.get("script_path")
+	var script: Script = null
+	var canonical_path := ""
+	if script_path != null:
+		if not script_path is String:
+			return _operation_error(index, "script_path must be a res:// .gd path or null")
+		canonical_path = script_path
+		var path_error := _resource_path_error(canonical_path)
+		if not path_error.is_empty():
+			return _operation_error(index, "invalid script_path: %s" % path_error)
+		if not canonical_path.to_lower().ends_with(".gd"):
+			return _operation_error(index, "script_path must point to a .gd script")
+		if not ResourceLoader.exists(canonical_path):
+			return _operation_error(index, "script_path does not exist: %s" % canonical_path)
+		var loaded := ResourceLoader.load(canonical_path)
+		if not loaded is Script:
+			return _operation_error(index, "script_path could not be loaded as a Script: %s" % canonical_path)
+		script = loaded as Script
+		var base_type := str(script.get_instance_base_type())
+		if base_type.is_empty():
+			return _operation_error(index, "script_path has no instance base type: %s" % canonical_path)
+		if not node.is_class(base_type):
+			return _operation_error(index, "script base type %s is incompatible with node type %s" % [
+				base_type,
+				node.get_class(),
+			])
+	var state := _state_for_existing(node, context)
+	var old_script = (
+		state.property_values["script"]
+		if state.property_values.has("script")
+		else node.get_script()
+	)
+	context.do_steps.append(_property_step(node, &"script", script))
+	context.undo_groups.append([_property_step(node, &"script", old_script)])
+	state.property_values["script"] = script
+	if script != null:
+		context.resources.append(script)
+	context.changes.append({
+		"index": index,
+		"action": "set_script",
+		"node_path": _virtual_path(node, context),
+		"script_path": null if canonical_path.is_empty() else canonical_path,
+		"_node": node,
+		"_before": old_script,
 	})
 	return {"ok": true}
 
@@ -814,6 +879,8 @@ func _prepare_property_value(
 		return _error("invalid property %s: %s" % [property, property_error])
 	var property_root := property.get_slice("/", 0)
 	if BLOCKED_PROPERTIES.has(property_root):
+		if property_root == "script":
+			return _error("property script must use action set_script with script_path")
 		return _error("property must use its dedicated structural operation: %s" % property)
 	var info_result := _find_property_info(node, property)
 	if not bool(info_result.get("ok", false)):
@@ -1845,6 +1912,11 @@ func _finalize_changes(context: Dictionary) -> Array:
 					var actual = node.get(StringName(property))
 					change["after"] = _encode_change_value(actual, budget, context.scene_root, node, false)
 					change["value_type"] = type_string(typeof(actual))
+			"set_script":
+				change["before"] = _script_change_path(raw_before)
+				if node != null and is_instance_valid(node):
+					change["node_path"] = _actual_scene_path(node, context.scene_root, str(change.get("node_path", "")))
+					change["after"] = _script_change_path(node.get_script())
 			"add_node", "instantiate_scene":
 				if node != null and is_instance_valid(node):
 					change["node_path"] = _actual_scene_path(node, context.scene_root, str(change.get("node_path", "")))
@@ -2157,6 +2229,15 @@ func _encode_change_resource(resource: Resource, budget: Dictionary) -> Dictiona
 		"writable": false,
 		"summary": "built-in or subresource values cannot be written by Resource tag",
 	}
+
+
+static func _script_change_path(value: Variant) -> Variant:
+	if not value is Script:
+		return null
+	var path := (value as Script).resource_path
+	if path.is_empty() or path.contains("::") or not _resource_path_error(path).is_empty():
+		return null
+	return path
 
 
 func _consume_change_budget(budget: Dictionary, values: int, chars: int) -> bool:

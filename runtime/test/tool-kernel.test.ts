@@ -1746,6 +1746,11 @@ test("phase three live scene operations and tagged values are normalized before 
       },
     },
     {
+      action: "set_script",
+      node_path: "Board",
+      script_path: "res://scripts/board.gd",
+    },
+    {
       action: "set_property",
       node_path: "Stats",
       property: "roundtrip_values",
@@ -1800,7 +1805,12 @@ test("phase three live scene operations and tagged values are normalized before 
     z: 0,
     w: 2_147_483_647,
   });
-  assert.deepEqual(forwardedOperations[8]?.value, [
+  assert.deepEqual(forwardedOperations[8], {
+    action: "set_script",
+    node_path: "Board",
+    script_path: "res://scripts/board.gd",
+  });
+  assert.deepEqual(forwardedOperations[9]?.value, [
     { godot_type: "int64", value: "-9223372036854775808" },
     { godot_type: "Vector4", x: 1, y: 2, z: 3, w: 4 },
     { godot_type: "Vector4i", x: -1, y: 0, z: 1, w: 2 },
@@ -1865,7 +1875,15 @@ test("live scene write validation is strict and happens before approval", async 
         scene_revision: "revision-1",
         operations: [{ action: "set_property", node_path: "Title", property: "script/source_code", value: "x" }],
       },
-      pattern: /protected structural or script property script/,
+      pattern: /use action set_script/,
+    },
+    {
+      arguments: {
+        scene_id: "scene-1",
+        scene_revision: "revision-1",
+        operations: [{ action: "set_script", node_path: "Title", script_path: "res://scripts/title.txt" }],
+      },
+      pattern: /GDScript path ending in \.gd/,
     },
     {
       arguments: {

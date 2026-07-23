@@ -87,6 +87,12 @@ package_addon.bat
 
 只需填写 API Key。端点和 Chat Completions 传输由适配器固定。当前内置模型能力不支持图片输入或 ImageX。
 
+### Anthropic
+
+填写 Base URL 和 API Key。裸主机会自动补全 `/v1`。该 Provider 使用原生 Messages 协议，支持流式文本、Thinking、工具调用和聊天图片输入，但不支持 ImageX。
+
+远程地址默认必须使用 HTTPS。只有在可信测试网络中，才应手动开启 **允许不安全的 HTTP**；开启后 API Key 会通过未加密连接发送。
+
 ### OpenCode Zen
 
 只需填写 Zen API Key。GodotX 会将 Zen 的实时模型列表与协议元数据相交，只显示当前 Runtime 已完整支持工具调用协议的模型。
@@ -182,6 +188,6 @@ Godot 工具脚本热重载可能保留旧插件实例。修改 `res://addons/go
 
 ### ImageX 可用但没有图片编辑
 
-图片生成、图片输入和图片编辑是独立能力。Provider 或模型没有声明对应能力时，ImageX 会禁用相关任务。DeepSeek 和 OpenCode Zen 当前不提供 ImageX。
+图片生成、图片输入和图片编辑是独立能力。Provider 或模型没有声明对应能力时，ImageX 会禁用相关任务。Anthropic、DeepSeek 和 OpenCode Zen 当前不提供 ImageX。
 
 [返回文档索引](README.md)

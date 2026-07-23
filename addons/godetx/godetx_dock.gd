@@ -2569,6 +2569,15 @@ func _format_tool_arguments(tool_name: String, arguments: Dictionary, value_limi
 								_format_scene_tool_value(operation_value.get("value"), value_limit),
 							]
 						)
+					elif action == "set_script":
+						var script_path_value = operation_value.get("script_path")
+						if script_path_value == null:
+							lines.append(_t("Detach script from %s") % str(operation_value.get("node_path", ".")))
+						else:
+							lines.append(_t("Attach script %s -> %s") % [
+								str(script_path_value),
+								str(operation_value.get("node_path", ".")),
+							])
 					elif action == "rename_node":
 						lines.append(_t("Rename %s -> %s") % [
 							str(operation_value.get("node_path", ".")),
@@ -3490,6 +3499,14 @@ func _format_editor_changes(changes_value: Variant) -> String:
 					_format_scene_tool_value(change_value.get("after"), 96),
 				]
 			lines.append(property_line)
+		elif action == "set_script":
+			var script_line := _t("Modified  %s.script") % str(change_value.get("node_path", "."))
+			if change_value.has("before") or change_value.has("after"):
+				script_line += _t("  %s -> %s") % [
+					_format_scene_tool_value(change_value.get("before"), 96),
+					_format_scene_tool_value(change_value.get("after"), 96),
+				]
+			lines.append(script_line)
 		elif action == "duplicate_node":
 			lines.append(_t("Created  %s (copy of %s)") % [
 				str(change_value.get("node_path", change_value.get("new_path", ""))),
@@ -4890,7 +4907,12 @@ func _provider_config_error(provider_id: String, config: Dictionary) -> String:
 			return _t("%s must not contain embedded credentials.") % label_text
 		if value.contains("?") or value.contains("#"):
 			return _t("%s must not contain a query or fragment.") % label_text
-		if lower_value.begins_with("http://") and not _is_loopback_http_url(lower_value):
+		var insecure_http_enabled := str(config.get("allow_insecure_http", "false")) == "true"
+		if (
+			lower_value.begins_with("http://")
+			and not _is_loopback_http_url(lower_value)
+			and not insecure_http_enabled
+		):
 			return _t("Remote URLs must use HTTPS. HTTP is allowed only for loopback addresses.")
 	return ""
 

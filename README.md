@@ -85,6 +85,7 @@ Agent Runtime
 	│   └── EditorBridge tools
 	└── ProviderRegistry
 		├── OpenAI-compatible
+		├── Anthropic
 		├── DeepSeek
 		└── OpenCode Zen
 ```
@@ -124,7 +125,7 @@ package_addon.bat
 
 1. 打开 GodotX 右上角的设置。
 2. 选择 Provider。
-3. 填写 API Key；OpenAI-compatible Provider 还需要 Base URL。
+3. 填写 API Key；OpenAI-compatible 和 Anthropic Provider 还需要 Base URL。
 4. 点击应用，等待模型列表同步。
 5. 在聊天框下方选择模型、推理强度和审批模式。
 
@@ -133,6 +134,7 @@ package_addon.bat
 | Provider | 对话与工具 | 推理摘要 | ImageX |
 | --- | :---: | :---: | :---: |
 | OpenAI-compatible | 是 | 取决于模型与接口 | 取决于服务是否实现图片接口 |
+| Anthropic | 是 | 支持原生 Thinking 流 | 否 |
 | DeepSeek | 是 | 是 | 否 |
 | OpenCode Zen | 是 | 取决于模型 | 否 |
 
@@ -202,7 +204,7 @@ npm.cmd test
 - 这是功能预览版，不等同于 Codex 或 OpenCode 的完整实现。
 - 关闭的场景目前仍通过受事务保护的文本变更处理。
 - 可编辑实例覆盖、脚本化 Resource 赋值、强类型 Array 写入和更广泛的 Variant 类型仍在后续计划中。
-- DeepSeek 与 OpenCode Zen 当前不提供 ImageX 图片生成。
+- Anthropic、DeepSeek 与 OpenCode Zen 当前不提供 ImageX 图片生成。
 - Windows 之外的平台尚未提供自包含打包脚本。
 
 参与开发前请阅读 [贡献指南](CONTRIBUTING.md)。项目的实现细节和后续扩展边界记录在 [架构文档](docs/architecture.md) 中。

@@ -453,11 +453,27 @@ test("WebSocket server emits versioned ready event and answers ping", async (t) 
   };
   assert.deepEqual(providerResponse.result.providers.map((entry) => entry.id), [
     "openai-compatible",
+    "anthropic",
     "deepseek",
     "opencode-zen",
   ]);
   assert.equal(providerResponse.result.providers[0]?.default_model, "gpt-5.6-sol");
   assert.ok((providerResponse.result.providers[0]?.config_fields.length ?? 0) >= 3);
+  const anthropicDefinition = providerResponse.result.providers.find((entry) => entry.id === "anthropic");
+  assert.equal(anthropicDefinition?.display_name, "Anthropic");
+  assert.equal(anthropicDefinition?.default_model, "claude-sonnet-4-6");
+  assert.deepEqual(anthropicDefinition?.config_fields.map((field) => field.key), [
+    "base_url",
+    "api_key",
+    "allow_insecure_http",
+  ]);
+  assert.deepEqual(
+    anthropicDefinition?.config_fields.find((field) => field.key === "allow_insecure_http")?.options,
+    [
+      { value: "false", label: "Disabled (recommended)" },
+      { value: "true", label: "Enabled (unsafe)" },
+    ],
+  );
   const deepSeekDefinition = providerResponse.result.providers.find((entry) => entry.id === "deepseek");
   assert.equal(deepSeekDefinition?.default_model, "deepseek-v4-flash");
   assert.deepEqual(deepSeekDefinition?.config_fields, [

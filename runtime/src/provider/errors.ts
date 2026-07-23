@@ -56,6 +56,7 @@ function providerErrorCategory(
   const normalizedBody = body.toLowerCase();
   if (
     status === 402 ||
+    normalizedType === "billingerror" ||
     normalizedType === "creditserror" ||
     normalizedType === "insufficientquota" ||
     normalizedType === "billinghardlimitreached" ||

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  ANTHROPIC_PROVIDER_DEFINITION,
+  ANTHROPIC_PROVIDER_ID,
   createDefaultProviderRegistry,
   DEEPSEEK_PROVIDER_DEFINITION,
   DEEPSEEK_PROVIDER_ID,
@@ -11,6 +13,7 @@ import {
   ProviderConfigurationError,
   ProviderRegistry,
 } from "../src/provider/registry.js";
+import { AnthropicProvider } from "../src/provider/anthropic.js";
 import { DeepSeekProvider } from "../src/provider/deepseek.js";
 import { OpenCodeZenProvider } from "../src/provider/opencode-zen.js";
 import { OpenAICompatibleProvider } from "../src/provider/openai-compatible.js";
@@ -20,6 +23,7 @@ test("default provider registry publishes and creates the built-in providers", (
 
   assert.deepEqual(registry.definitions().map((definition) => definition.id), [
     OPENAI_COMPATIBLE_PROVIDER_ID,
+    ANTHROPIC_PROVIDER_ID,
     DEEPSEEK_PROVIDER_ID,
     OPENCODE_ZEN_PROVIDER_ID,
   ]);
@@ -44,6 +48,41 @@ test("default provider registry publishes and creates the built-in providers", (
       base_url: "https://models.example/v1/",
       api_key: "test-key",
     }) instanceof OpenAICompatibleProvider,
+  );
+  assert.equal(ANTHROPIC_PROVIDER_DEFINITION.defaultModel, "claude-sonnet-4-6");
+  assert.deepEqual(ANTHROPIC_PROVIDER_DEFINITION.configSchema, [
+    {
+      key: "base_url",
+      label: "Base URL",
+      input: "url",
+      required: true,
+      defaultValue: "https://api.anthropic.com/v1",
+      description: "Anthropic API root. A bare host automatically uses /v1.",
+    },
+    {
+      key: "api_key",
+      label: "API key",
+      input: "secret",
+      required: true,
+    },
+    {
+      key: "allow_insecure_http",
+      label: "Allow insecure HTTP",
+      input: "select",
+      required: false,
+      defaultValue: "false",
+      description: "Use only for a trusted test endpoint. The API key is sent without encryption.",
+      options: [
+        { value: "false", label: "Disabled (recommended)" },
+        { value: "true", label: "Enabled (unsafe)" },
+      ],
+    },
+  ]);
+  assert.ok(
+    registry.create(ANTHROPIC_PROVIDER_ID, {
+      base_url: "https://api.anthropic.example",
+      api_key: "test-anthropic-key",
+    }) instanceof AnthropicProvider,
   );
   assert.equal(DEEPSEEK_PROVIDER_DEFINITION.defaultModel, "deepseek-v4-flash");
   assert.deepEqual(DEEPSEEK_PROVIDER_DEFINITION.configSchema, [
@@ -106,6 +145,30 @@ test("provider config validation normalizes values and reports safe field issues
     }),
     ProviderConfigurationError,
   );
+
+  assert.deepEqual(
+    registry.validateConfig(ANTHROPIC_PROVIDER_ID, {
+      base_url: " http://203.0.113.10:8990 ",
+      api_key: " test-anthropic-key ",
+      allow_insecure_http: "true",
+    }),
+    {
+      ok: true,
+      value: {
+        base_url: "http://203.0.113.10:8990/v1",
+        api_key: "test-anthropic-key",
+        allow_insecure_http: "true",
+      },
+    },
+  );
+  const unsafeAnthropic = registry.validateConfig(ANTHROPIC_PROVIDER_ID, {
+    base_url: "http://203.0.113.10:8990",
+    api_key: "test-anthropic-key",
+  });
+  assert.equal(unsafeAnthropic.ok, false);
+  if (!unsafeAnthropic.ok) {
+    assert.deepEqual(unsafeAnthropic.issues.map((issue) => issue.field), ["base_url"]);
+  }
 
   assert.deepEqual(
     registry.validateConfig(DEEPSEEK_PROVIDER_ID, {

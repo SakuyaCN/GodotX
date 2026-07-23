@@ -221,6 +221,19 @@ func _init() -> void:
 			],
 		},
 		{
+			"id": "anthropic",
+			"display_name": "Anthropic",
+			"default_model": "claude-sonnet-4-6",
+			"config_fields": [
+				{"key": "base_url", "label": "Base URL", "type": "url", "required": true, "default_value": "https://api.anthropic.com/v1"},
+				{"key": "api_key", "label": "API key", "type": "secret", "required": true},
+				{"key": "allow_insecure_http", "label": "Allow insecure HTTP", "type": "select", "required": false, "default_value": "false", "options": [
+					{"value": "false", "label": "Disabled (recommended)"},
+					{"value": "true", "label": "Enabled (unsafe)"},
+				]},
+			],
+		},
+		{
 			"id": "deepseek",
 			"display_name": "DeepSeek",
 			"default_model": "deepseek-v4-flash",
@@ -246,17 +259,46 @@ func _init() -> void:
 			],
 		},
 	])
+	var anthropic_provider_index := -1
 	var deepseek_provider_index := -1
 	var zen_provider_index := -1
 	var local_provider_index := -1
 	for index in dock._settings_provider_select.item_count:
 		var provider_id := str(dock._settings_provider_select.get_item_metadata(index))
-		if provider_id == "deepseek":
+		if provider_id == "anthropic":
+			anthropic_provider_index = index
+		elif provider_id == "deepseek":
 			deepseek_provider_index = index
 		elif provider_id == "opencode-zen":
 			zen_provider_index = index
 		elif provider_id == "local-test":
 			local_provider_index = index
+	dock._on_settings_provider_selected(anthropic_provider_index)
+	var anthropic_base_url = dock._settings_config_controls.get("base_url")
+	var anthropic_api_key = dock._settings_config_controls.get("api_key")
+	var anthropic_insecure_http = dock._settings_config_controls.get("allow_insecure_http")
+	_assert(
+		anthropic_provider_index >= 0
+		and anthropic_base_url is LineEdit
+		and (anthropic_base_url as LineEdit).text == "https://api.anthropic.com/v1"
+		and anthropic_api_key is LineEdit
+		and (anthropic_api_key as LineEdit).secret
+		and anthropic_insecure_http is OptionButton,
+		"Anthropic settings should expose URL, secret key, and explicit insecure HTTP consent"
+	)
+	_assert(
+		not dock._provider_config_error("anthropic", {
+			"base_url": "http://203.0.113.10:8990",
+			"api_key": "test-key",
+			"allow_insecure_http": "false",
+		}).is_empty()
+		and dock._provider_config_error("anthropic", {
+			"base_url": "http://203.0.113.10:8990",
+			"api_key": "test-key",
+			"allow_insecure_http": "true",
+		}).is_empty(),
+		"Remote Anthropic HTTP should require explicit consent in the Godot UI"
+	)
 	dock._on_settings_provider_selected(deepseek_provider_index)
 	var deepseek_api_key = dock._settings_config_controls.get("api_key")
 	var deepseek_settings_are_isolated: bool = (

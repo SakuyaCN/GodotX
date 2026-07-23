@@ -9,6 +9,7 @@ GodotX 的 Agent、工具和编辑器 UI 不依赖具体模型厂商。Provider 
 | Provider | 配置 | 传输 | 工具调用 | 图片输入 | ImageX |
 | --- | --- | --- | :---: | :---: | :---: |
 | OpenAI-compatible | Base URL、API Key、API 模式 | Responses / Chat Completions | 是 | 取决于模型 | 取决于服务 |
+| Anthropic | Base URL、API Key | 原生 Messages | 是 | 是 | 否 |
 | DeepSeek | API Key | 官方 Chat Completions | 是 | 否 | 否 |
 | OpenCode Zen | Zen API Key | 按模型选择 Responses / Chat | 是 | 当前未开放 | 否 |
 
@@ -28,6 +29,20 @@ Base URL 规则：
 - HTTP 只允许精确回环主机。
 - 拒绝 URL 用户信息、查询参数和片段。
 - API Key 不会拼入 URL。
+
+## Anthropic
+
+Anthropic Provider 使用原生 Messages API，而不是 OpenAI 兼容协议。它支持：
+
+- `/models` 模型发现与分页。
+- Messages SSE 文本和 Thinking 内容块。
+- `tool_use` 与 `tool_result` 多轮工具调用。
+- PNG、JPEG 和 WebP 聊天图片输入。
+- Anthropic 原生用量统计与错误分类。
+
+填写裸主机地址时会自动使用 `/v1`；也可以直接填写完整 API 根地址。远程地址默认必须使用 HTTPS。测试私有网关时可以显式开启 **允许不安全的 HTTP**，但这会让 API Key 未经加密地通过网络，仅应在可信隔离网络中临时使用。
+
+Anthropic Provider 不实现图片生成或编辑，因此可以在 GodotX 对话中查看图片，但不能供 ImageX 使用。
 
 ## DeepSeek
 
@@ -54,7 +69,7 @@ https://opencode.ai/zen/v1
 1. Zen 认证后的实时 `/models`。
 2. models.dev 提供的协议与工具能力元数据。
 
-GodotX 只展示 Runtime 已完整支持且能够调用工具的路由。需要原生 Anthropic Messages 或 Gemini 协议的模型会被过滤，直到对应传输适配器完成。
+GodotX 只展示 Zen 适配器已完整支持且能够调用工具的路由。独立 Anthropic Provider 已支持原生 Messages，但 Zen 的 Anthropic 路由尚未接通；这类路由与 Gemini 原生协议模型仍会被过滤。
 
 Zen API Key 只发送到 `opencode.ai`，匿名元数据请求不会携带该密钥。
 

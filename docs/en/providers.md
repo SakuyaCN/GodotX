@@ -9,6 +9,7 @@ GodotX's Agent, tools, and editor UI do not depend on a particular model vendor.
 | Provider | Configuration | Transport | Tool Calls | Image Input | ImageX |
 | --- | --- | --- | :---: | :---: | :---: |
 | OpenAI-compatible | Base URL, API key, API mode | Responses / Chat Completions | Yes | Model dependent | Service dependent |
+| Anthropic | Base URL, API key | Native Messages | Yes | Yes | No |
 | DeepSeek | API key | Official Chat Completions | Yes | No | No |
 | OpenCode Zen | Zen API key | Responses or Chat by model | Yes | Not currently exposed | No |
 
@@ -28,6 +29,20 @@ Base URL rules:
 - HTTP is permitted only for an exact loopback host.
 - URL user information, query parameters, and fragments are rejected.
 - API keys are never appended to URLs.
+
+## Anthropic
+
+The Anthropic Provider uses the native Messages API rather than an OpenAI-compatible transport. It supports:
+
+- Paginated `/models` discovery.
+- Streamed Messages text and Thinking blocks.
+- Multi-turn `tool_use` and `tool_result` calls.
+- PNG, JPEG, and WebP chat image input.
+- Native Anthropic usage and normalized errors.
+
+A bare host automatically uses `/v1`; a complete API root can also be entered. Remote addresses require HTTPS by default. **Allow insecure HTTP** is an explicit test-only override that sends the API key without encryption and should be used only on an isolated trusted network.
+
+The Anthropic Provider does not implement image generation or editing. Images can be inspected in GodotX chat, but Anthropic is unavailable to ImageX.
 
 ## DeepSeek
 
@@ -54,7 +69,7 @@ The model list is the intersection of:
 1. Zen's authenticated live `/models` response.
 2. Protocol and tool-capability metadata from models.dev.
 
-GodotX shows only routes that the Runtime fully supports and that can call tools. Models requiring native Anthropic Messages or Gemini transports remain filtered until those transports are implemented.
+GodotX shows only routes that the Zen adapter fully supports and that can call tools. The standalone Anthropic Provider now supports native Messages, but Zen's Anthropic routes are not connected yet; those routes and native Gemini models remain filtered.
 
 The Zen API key is sent only to `opencode.ai`; anonymous metadata requests do not include it.
 

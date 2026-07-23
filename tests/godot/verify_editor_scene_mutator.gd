@@ -251,6 +251,7 @@ func _init() -> void:
 	_test_internal_child_external_index(mutator)
 	_test_duplicate_instance_boundary(mutator)
 	_test_result_codec(mutator)
+	_test_set_script_operation(mutator)
 
 	var arguments := {
 		"operation_id": "test-live-scene-action",
@@ -712,6 +713,82 @@ func _test_result_codec(mutator: EditorSceneMutator) -> void:
 	_assert(undo_redo.undo(), "Bounded result encoding must not affect UndoRedo")
 	_assert(label.text.length() == 500_000, "Undo should restore the full value, not the log preview")
 	root.free()
+
+
+func _test_set_script_operation(mutator: EditorSceneMutator) -> void:
+	var scene_root := Node.new()
+	scene_root.name = "ScriptRoot"
+	var label := Label.new()
+	label.name = "PlainLabel"
+	scene_root.add_child(label)
+	label.owner = scene_root
+	var undo_redo := UndoRedo.new()
+	var scene_id := EditorSceneMutator._scene_id(scene_root)
+	var incompatible := mutator._apply_operations_with_undo(scene_root, {
+		"operation_id": "test-set-script-incompatible",
+		"scene_id": scene_id,
+		"scene_revision": EditorSceneMutator.scene_revision_for(scene_root, undo_redo),
+		"operations": [{
+			"action": "set_script",
+			"node_path": "PlainLabel",
+			"script_path": "res://tests/godot/editor_scene_node2d_script.gd",
+		}],
+	}, undo_redo)
+	_assert(not bool(incompatible.get("ok", true)), "Incompatible script base types should be rejected")
+	_assert(label.get_script() == null, "Rejected set_script operations must not change the node")
+	_assert(not undo_redo.has_undo(), "Rejected set_script operations must not create undo history")
+
+	var result: Dictionary = mutator._apply_operations_with_undo(scene_root, {
+		"operation_id": "test-set-script",
+		"scene_id": scene_id,
+		"scene_revision": EditorSceneMutator.scene_revision_for(scene_root, undo_redo),
+		"operations": [
+			{
+				"action": "add_node",
+				"parent_path": ".",
+				"node_type": "Node",
+				"name": "Scripted",
+			},
+			{
+				"action": "set_script",
+				"node_path": "Scripted",
+				"script_path": "res://tests/godot/editor_scene_test_script.gd",
+			},
+		],
+	}, undo_redo)
+	_assert(bool(result.get("ok", false)), "set_script should commit as a dedicated live scene operation")
+	var scripted := scene_root.get_node_or_null("Scripted")
+	_assert(scripted != null and scripted.get_script() is Script, "set_script should attach the requested script")
+	if scripted != null and scripted.get_script() is Script:
+		_assert(
+			(scripted.get_script() as Script).resource_path == "res://tests/godot/editor_scene_test_script.gd",
+			"set_script should preserve the script resource path in the node"
+		)
+	var script_change := _find_change(result.get("changes", []), "set_script")
+	_assert(
+		str(script_change.get("after", "")) == "res://tests/godot/editor_scene_test_script.gd",
+		"set_script change logs should report the attached script path"
+	)
+	_assert(undo_redo.undo(), "set_script batches should be undoable")
+	_assert(scene_root.get_node_or_null("Scripted") == null, "Undo should remove a newly scripted node")
+	_assert(undo_redo.redo(), "set_script batches should be redoable")
+	scripted = scene_root.get_node_or_null("Scripted")
+	_assert(scripted != null and scripted.get_script() is Script, "Redo should restore the attached script")
+
+	var detached := mutator._apply_operations_with_undo(scene_root, {
+		"operation_id": "test-set-script-detach",
+		"scene_id": scene_id,
+		"scene_revision": EditorSceneMutator.scene_revision_for(scene_root, undo_redo),
+		"operations": [{
+			"action": "set_script",
+			"node_path": "Scripted",
+			"script_path": null,
+		}],
+	}, undo_redo)
+	_assert(bool(detached.get("ok", false)), "set_script should allow null to detach scripts")
+	scripted = scene_root.get_node_or_null("Scripted")
+	_assert(scripted != null and scripted.get_script() == null, "Null set_script should detach the script")
+	scene_root.free()
 
 
 func _external_child_names(parent: Node) -> PackedStringArray:

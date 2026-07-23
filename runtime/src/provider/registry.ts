@@ -10,6 +10,12 @@ import {
   OPENCODE_ZEN_DEFAULT_MODEL,
   OpenCodeZenProvider,
 } from "./opencode-zen.js";
+import {
+  ANTHROPIC_DEFAULT_BASE_URL,
+  ANTHROPIC_DEFAULT_MODEL,
+  AnthropicProvider,
+  normalizeAnthropicBaseUrl,
+} from "./anthropic.js";
 import type { ModelProvider } from "./types.js";
 
 export type ProviderConfig = Readonly<Record<string, unknown>>;
@@ -104,6 +110,7 @@ export class ProviderRegistry {
 }
 
 export const OPENAI_COMPATIBLE_PROVIDER_ID = "openai-compatible";
+export const ANTHROPIC_PROVIDER_ID = "anthropic";
 export const DEEPSEEK_PROVIDER_ID = "deepseek";
 export const OPENCODE_ZEN_PROVIDER_ID = "opencode-zen";
 
@@ -171,6 +178,50 @@ export const DEEPSEEK_PROVIDER_DEFINITION: ProviderDefinition = {
   },
 };
 
+export const ANTHROPIC_PROVIDER_DEFINITION: ProviderDefinition = {
+  id: ANTHROPIC_PROVIDER_ID,
+  displayName: "Anthropic",
+  defaultModel: ANTHROPIC_DEFAULT_MODEL,
+  configSchema: [
+    {
+      key: "base_url",
+      label: "Base URL",
+      input: "url",
+      required: true,
+      defaultValue: ANTHROPIC_DEFAULT_BASE_URL,
+      description: "Anthropic API root. A bare host automatically uses /v1.",
+    },
+    {
+      key: "api_key",
+      label: "API key",
+      input: "secret",
+      required: true,
+    },
+    {
+      key: "allow_insecure_http",
+      label: "Allow insecure HTTP",
+      input: "select",
+      required: false,
+      defaultValue: "false",
+      description: "Use only for a trusted test endpoint. The API key is sent without encryption.",
+      options: [
+        { value: "false", label: "Disabled (recommended)" },
+        { value: "true", label: "Enabled (unsafe)" },
+      ],
+    },
+  ],
+  validateConfig: validateAnthropicProviderConfig,
+  create(config: unknown): ModelProvider {
+    const result = validateAnthropicProviderConfig(config);
+    if (!result.ok) throw new ProviderConfigurationError(ANTHROPIC_PROVIDER_ID, result.issues);
+    return new AnthropicProvider({
+      baseUrl: result.value.base_url as string,
+      apiKey: result.value.api_key as string,
+      allowInsecureHttp: result.value.allow_insecure_http === "true",
+    });
+  },
+};
+
 export const OPENCODE_ZEN_PROVIDER_DEFINITION: ProviderDefinition = {
   id: OPENCODE_ZEN_PROVIDER_ID,
   displayName: "OpenCode Zen",
@@ -194,9 +245,47 @@ export const OPENCODE_ZEN_PROVIDER_DEFINITION: ProviderDefinition = {
 export function createDefaultProviderRegistry(): ProviderRegistry {
   return new ProviderRegistry([
     OPENAI_COMPATIBLE_PROVIDER_DEFINITION,
+    ANTHROPIC_PROVIDER_DEFINITION,
     DEEPSEEK_PROVIDER_DEFINITION,
     OPENCODE_ZEN_PROVIDER_DEFINITION,
   ]);
+}
+
+export function validateAnthropicProviderConfig(config: unknown): ProviderConfigValidationResult {
+  if (!isRecord(config)) {
+    return { ok: false, issues: [{ field: "$", message: "configuration must be an object" }] };
+  }
+
+  const issues: ProviderConfigIssue[] = [];
+  const allowInsecureHttp = config.allow_insecure_http ?? "false";
+  if (allowInsecureHttp !== "false" && allowInsecureHttp !== "true") {
+    issues.push({ field: "allow_insecure_http", message: "must be false or true" });
+  }
+  let baseUrl: string | undefined;
+  if (typeof config.base_url !== "string" || !config.base_url.trim()) {
+    issues.push({ field: "base_url", message: "is required" });
+  } else if (allowInsecureHttp === "false" || allowInsecureHttp === "true") {
+    try {
+      baseUrl = normalizeAnthropicBaseUrl(config.base_url, allowInsecureHttp === "true");
+    } catch (error) {
+      issues.push({
+        field: "base_url",
+        message: error instanceof Error ? error.message : "is invalid",
+      });
+    }
+  }
+
+  const apiKey = typeof config.api_key === "string" ? config.api_key.trim() : "";
+  if (!apiKey) issues.push({ field: "api_key", message: "is required" });
+  if (issues.length) return { ok: false, issues };
+  return {
+    ok: true,
+    value: {
+      base_url: baseUrl!,
+      api_key: apiKey,
+      allow_insecure_http: allowInsecureHttp,
+    },
+  };
 }
 
 export function validateDeepSeekProviderConfig(config: unknown): ProviderConfigValidationResult {
