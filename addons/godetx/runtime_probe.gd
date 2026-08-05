@@ -193,6 +193,15 @@ func _enter_tree() -> void:
 	var now: int = Time.get_ticks_msec()
 	_next_flush_at_ms = now
 	_next_hello_at_ms = now
+	# A script error in the main scene can enter Godot's debugger before this
+	# autoload receives its first _process() callback. Bind the run while the
+	# tree is being assembled, so the editor can still identify and stop the
+	# paused GodotX-owned game.
+	if EngineDebugger.is_active():
+		_ensure_automation_capture()
+		_ensure_visual_capture()
+		_send_hello()
+		_next_hello_at_ms = now + HELLO_INTERVAL_MS
 	set_process(true)
 	set_physics_process(true)
 

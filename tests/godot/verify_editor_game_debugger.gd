@@ -36,10 +36,22 @@ func _init() -> void:
 		"The run ID must be passed as a user argument after the separator"
 	)
 
+	# A project error can pause the debugger while the autoload is still
+	# establishing its handshake. The later matching hello must retain that
+	# paused state instead of discarding the GodotX run identity.
+	debugger._on_session_breaked(true, 7)
+	_assert(
+		bool(debugger._session_state(7).get("breaked", false)),
+		"An early debugger break should be retained until the probe connects"
+	)
 	debugger._capture_hello([run_id, debugger.SUPPORTED_PROTOCOL_VERSION], 7)
 	_assert(
 		bool(debugger._session_state(7).get("probe_confirmed", false)),
 		"A supported matching probe hello should retain its handshake state"
+	)
+	_assert(
+		debugger._any_owned_session_breaked(),
+		"A matching probe hello must preserve the pre-existing paused debugger state"
 	)
 	_assert(
 		debugger._owned_session_id == 7,

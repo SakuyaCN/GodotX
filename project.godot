@@ -18,7 +18,6 @@ config/icon="res://addons/godetx/icons/godotx-mark.png"
 [autoload]
 
 GodotXRuntimeProbe="*uid://681eyxev004q"
-GodetXRuntimeProbe="*uid://681eyxev004q"
 
 [display]
 

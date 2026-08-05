@@ -7,9 +7,11 @@ const SkillXContent := preload("res://addons/godetx/skillx_dock.gd")
 const EditorGameDebugger := preload("res://addons/godetx/editor_game_debugger.gd")
 const Localization := preload("res://addons/godetx/localization.gd")
 const GODETX_MARK := preload("res://addons/godetx/icons/godotx-mark.png")
-const RUNTIME_PROBE_NAME := "GodetXRuntimeProbe"
+const RUNTIME_PROBE_NAME := "GodotXRuntimeProbe"
+const LEGACY_RUNTIME_PROBE_NAME := "GodetXRuntimeProbe"
 const RUNTIME_PROBE_PATH := "res://addons/godetx/runtime_probe.gd"
 const RUNTIME_PROBE_SETTING := "autoload/%s" % RUNTIME_PROBE_NAME
+const LEGACY_RUNTIME_PROBE_SETTING := "autoload/%s" % LEGACY_RUNTIME_PROBE_NAME
 
 var _dock: EditorDock
 var _content: Control
@@ -124,6 +126,7 @@ func _configure_runtime_probe() -> void:
 	_owns_runtime_probe = false
 	_runtime_probe_available = false
 	_runtime_probe_error = ""
+	_remove_legacy_runtime_probe()
 	if ProjectSettings.has_setting(RUNTIME_PROBE_SETTING):
 		var existing_path := _normalize_autoload_path(
 			str(ProjectSettings.get_setting(RUNTIME_PROBE_SETTING, ""))
@@ -145,6 +148,18 @@ func _configure_runtime_probe() -> void:
 	_owns_runtime_probe = _runtime_probe_available
 	if not _runtime_probe_available:
 		_runtime_probe_error = "Could not register the GodotX runtime probe autoload"
+
+
+func _remove_legacy_runtime_probe() -> void:
+	if not ProjectSettings.has_setting(LEGACY_RUNTIME_PROBE_SETTING):
+		return
+	var legacy_path := _normalize_autoload_path(
+		str(ProjectSettings.get_setting(LEGACY_RUNTIME_PROBE_SETTING, ""))
+	)
+	# Only migrate the historical GodetX entry when it is exactly this plugin's
+	# probe. A project-owned autoload with that old name must remain untouched.
+	if legacy_path == RUNTIME_PROBE_PATH:
+		remove_autoload_singleton(LEGACY_RUNTIME_PROBE_NAME)
 
 
 func _remove_owned_runtime_probe() -> void:

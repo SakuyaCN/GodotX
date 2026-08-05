@@ -3353,6 +3353,8 @@ func _format_game_debug_status_output(output: Dictionary) -> String:
 		lines.append(_t("Runtime probe: connected"))
 	elif bool(output.get("probe_confirmed", false)):
 		lines.append(_t("Runtime probe: confirmed during run"))
+	elif breaked:
+		lines.append(_t("Runtime probe: game paused before handshake"))
 	elif playing or owned:
 		lines.append(_t("Runtime probe: waiting"))
 	var probe_error := str(output.get("runtime_probe_error", ""))

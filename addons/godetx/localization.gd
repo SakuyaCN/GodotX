@@ -378,6 +378,7 @@ const ZH_CN := {
 	"Elapsed: %s": "已运行：%s",
 	"Runtime probe: connected": "运行时探针：已连接",
 	"Runtime probe: confirmed during run": "运行时探针：运行期间已确认",
+	"Runtime probe: game paused before handshake": "运行时探针：游戏在握手前已暂停",
 	"Runtime probe: waiting": "运行时探针：等待连接",
 	"Runtime probe error: %s": "运行时探针错误：%s",
 	"Debugger sessions: %d": "调试器会话：%d 个",
